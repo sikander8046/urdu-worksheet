@@ -20,6 +20,20 @@ export default function RootLayout({
   return (
     <html lang="ur" dir="rtl">
       <head>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-8V939QN8B0"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-8V939QN8B0');
+            `,
+          }}
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
