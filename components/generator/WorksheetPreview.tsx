@@ -112,12 +112,22 @@ export const WorksheetPreview = forwardRef<HTMLDivElement, WorksheetPreviewProps
                 />
               ))}
 
-              {/* Fill remaining space with blank rows if blank-only */}
-              {opts.worksheetStyle === 'blank-only' &&
-                pageRows.length === 0 &&
-                Array.from({ length: 8 }).map((_, i) => (
+              {/* CRITICAL FIX 1: Fill remaining page space with blank writing lines */}
+              {opts.worksheetStyle !== 'blank-only' && (() => {
+                const headerH = opts.showHeader && pageIdx === 0 ? 120 : 0
+                const pageH = opts.paperSize === 'a4' ? 1123 : 1056
+                const availH = pageH - MARGIN_PT * 2 - headerH - 20
+                const rowsRendered = opts.worksheetStyle === 'trace-blank'
+                  ? pageRows.length * 2
+                  : pageRows.length
+                const rowH = opts.rowHeight + 4
+                const rowsUsed = rowsRendered * rowH
+                const remaining = availH - rowsUsed
+                const blankCount = Math.floor(remaining / rowH)
+                if (blankCount <= 0) return null
+                return Array.from({ length: blankCount }).map((_, i) => (
                   <WorksheetRowCanvas
-                    key={i}
+                    key={`blank-fill-${i}`}
                     text=""
                     showText={false}
                     showBlankBelow={false}
@@ -133,7 +143,34 @@ export const WorksheetPreview = forwardRef<HTMLDivElement, WorksheetPreviewProps
                     textFit={opts.textFit}
                   />
                 ))
-              }
+              })()}
+
+              {/* CRITICAL FIX 2: Blank-only — fill full page with ruled lines */}
+              {opts.worksheetStyle === 'blank-only' && (() => {
+                const headerH = opts.showHeader && pageIdx === 0 ? 120 : 0
+                const pageH = opts.paperSize === 'a4' ? 1123 : 1056
+                const availH = pageH - MARGIN_PT * 2 - headerH - 20
+                const rowH = opts.rowHeight + 4
+                const blankCount = Math.floor(availH / rowH)
+                return Array.from({ length: blankCount }).map((_, i) => (
+                  <WorksheetRowCanvas
+                    key={`blank-only-${i}`}
+                    text=""
+                    showText={false}
+                    showBlankBelow={false}
+                    fontSize={opts.fontSize}
+                    fontBold={opts.fontBold}
+                    fontFamily={FONT_FAMILIES[opts.fontStyle]}
+                    traceColor={TRACE_COLORS[opts.traceColor]}
+                    traceOpacity={opts.traceOpacity}
+                    rowHeight={opts.rowHeight}
+                    rulingStyle={opts.rulingStyle}
+                    lineStyle={opts.lineStyle}
+                    paperWidthPx={contentWidth}
+                    textFit={opts.textFit}
+                  />
+                ))
+              })()}
             </div>
 
             {/* Page number */}

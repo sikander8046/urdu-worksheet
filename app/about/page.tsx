@@ -23,14 +23,22 @@ export default function AboutPage() {
 
         <div className="prose prose-ink space-y-6 text-ink-700 leading-relaxed">
           <p>
-            <strong>اردو ورک شیٹ</strong> is a free online tool for teachers and parents to create
-            custom Urdu handwriting practice worksheets in seconds — no design skills required.
+            <strong>اردو ورک شیٹ</strong> was built by a Pakistani educator and parent who
+            homeschools his children and couldn&apos;t find a proper Urdu handwriting tool that
+            worked the way Pakistani teachers actually teach — with authentic Nastaleeq script,
+            proper 2-line ruling, and worksheets that print correctly on A4 paper.
           </p>
 
           <p>
-            Type any Urdu text, adjust the font size and style for your student's level, and print
-            a professional worksheet directly from your browser. Worksheets use the authentic
-            Nastaleeq script — the same style used in Pakistani schools.
+            Every worksheet uses the same ruling system found in Pakistani school notebooks — two
+            guide lines per row, with letters sitting on the baseline and descenders hanging freely
+            below. Four fonts are available: from traditional Nastaleeq for qalam practice to clean
+            Naskh for pencil tracing.
+          </p>
+
+          <p>
+            The tool is used by teachers, parents, and madrassa educators across Pakistan and the
+            Pakistani diaspora in UK, USA, Canada and Australia.
           </p>
 
           <h2 className="text-xl font-semibold text-ink-800 mt-8">Who is this for?</h2>

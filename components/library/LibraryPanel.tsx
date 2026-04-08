@@ -17,8 +17,11 @@ export function LibraryPanel({ onLoad, onClose }: LibraryPanelProps) {
 
   const filtered = LIBRARY_ITEMS.filter(item => {
     const matchCat = activeCategory === 'all' || item.category === activeCategory
-    const q = search.toLowerCase()
-    const matchSearch = !q || item.title.toLowerCase().includes(q) || item.titleUrdu.includes(q)
+    const q = search.toLowerCase().trim()
+    const matchSearch = !q ||
+      item.title.toLowerCase().includes(q) ||
+      item.titleUrdu.includes(q) ||
+      item.categoryLabel.includes(q)
     return matchCat && matchSearch
   })
 

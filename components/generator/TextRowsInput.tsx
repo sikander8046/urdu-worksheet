@@ -1,9 +1,10 @@
 'use client'
-import React, { useRef } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Plus, Trash2, GripVertical, Copy, RotateCcw } from 'lucide-react'
 import clsx from 'clsx'
 import { WorksheetRow } from '@/lib/types'
 import { makeRowId } from '@/lib/url-state'
+import { UrduKeyboard } from './UrduKeyboard'
 
 interface TextRowsInputProps {
   rows: WorksheetRow[]
@@ -11,11 +12,16 @@ interface TextRowsInputProps {
   onClearAll: () => void
   onUndo: () => void
   hasUndo: boolean
+  worksheetTitle: string
+  onTitleChange: (title: string) => void
 }
 
-export function TextRowsInput({ rows, onChange, onClearAll, onUndo, hasUndo }: TextRowsInputProps) {
+export function TextRowsInput({ rows, onChange, onClearAll, onUndo, hasUndo, worksheetTitle, onTitleChange }: TextRowsInputProps) {
   const dragIdx = useRef<number | null>(null)
   const dragOverIdx = useRef<number | null>(null)
+  const [activeRowId, setActiveRowId] = useState<string | null>(null)
+  const [showKeyboard, setShowKeyboard] = useState(false)
+  const textareaRefs = useRef<Record<string, HTMLTextAreaElement>>({})
 
   function updateRow(id: string, text: string) {
     onChange(rows.map(r => r.id === id ? { ...r, text } : r))
@@ -44,6 +50,16 @@ export function TextRowsInput({ rows, onChange, onClearAll, onUndo, hasUndo }: T
     onChange(next)
   }
 
+  // CRITICAL FIX 7: Auto-resize all textareas when rows change
+  useEffect(() => {
+    Object.values(textareaRefs.current).forEach(ta => {
+      if (ta) {
+        ta.style.height = 'auto'
+        ta.style.height = ta.scrollHeight + 'px'
+      }
+    })
+  }, [rows])
+
   function onDragStart(idx: number) { dragIdx.current = idx }
   function onDragEnter(idx: number) { dragOverIdx.current = idx }
   function onDragEnd() {
@@ -60,6 +76,20 @@ export function TextRowsInput({ rows, onChange, onClearAll, onUndo, hasUndo }: T
 
   return (
     <div className="flex flex-col gap-1.5">
+      {/* HIGH FIX 2: Worksheet title field */}
+      <div className="flex flex-col gap-1 mb-3 pb-3 border-b border-ink-100">
+        <label className="text-xs font-medium text-ink-600">عنوان (Worksheet title)</label>
+        <input
+          dir="rtl"
+          type="text"
+          value={worksheetTitle}
+          onChange={e => onTitleChange(e.target.value)}
+          placeholder="اردو لکھائی مشق"
+          className="w-full border border-ink-200 rounded-xl px-3 py-2 text-sm text-right text-ink-800 focus:outline-none focus:border-brand-400 bg-white"
+          style={{ fontFamily: '"Jameel Noori Nastaleeq","Noto Nastaliq Urdu",serif' }}
+        />
+      </div>
+
       <div className="flex items-center justify-between mb-0.5">
         <label className="text-xs font-medium text-ink-600">متن (Text rows)</label>
         <div className="flex items-center gap-2">
@@ -82,6 +112,17 @@ export function TextRowsInput({ rows, onChange, onClearAll, onUndo, hasUndo }: T
               <span>Undo</span>
             </button>
           )}
+          <button
+            onClick={() => setShowKeyboard(!showKeyboard)}
+            className={clsx(
+              'text-[10px] px-2 py-0.5 rounded border transition-colors',
+              showKeyboard
+                ? 'bg-brand-600 text-white border-brand-600'
+                : 'border-ink-300 text-ink-500 hover:border-brand-400'
+            )}
+          >
+            ⌨ اردو
+          </button>
         </div>
       </div>
 
@@ -116,6 +157,8 @@ export function TextRowsInput({ rows, onChange, onClearAll, onUndo, hasUndo }: T
               onChange={e => updateRow(row.id, e.target.value)}
               placeholder="یہاں اردو لکھیں…"
               rows={1}
+              ref={el => { if (el) textareaRefs.current[row.id] = el }}
+              onFocus={() => setActiveRowId(row.id)}
               className={clsx(
                 'flex-1 resize-none bg-transparent text-right font-nastaleeq text-xl leading-relaxed',
                 'text-ink-800 placeholder:text-ink-300 focus:outline-none',
@@ -125,7 +168,7 @@ export function TextRowsInput({ rows, onChange, onClearAll, onUndo, hasUndo }: T
               onInput={e => {
                 const el = e.currentTarget
                 el.style.height = 'auto'
-                el.style.height = el.scrollHeight + 'px'
+                el.style.height = Math.max(40, el.scrollHeight) + 'px'
               }}
             />
 
@@ -162,6 +205,39 @@ export function TextRowsInput({ rows, onChange, onClearAll, onUndo, hasUndo }: T
         <span>سطر شامل کریں</span>
         <span className="text-ink-400">(Add row)</span>
       </button>
+
+      {/* CRITICAL FIX 6: On-screen Urdu keyboard */}
+      {showKeyboard && (
+        <UrduKeyboard
+          onChar={(char) => {
+            if (!activeRowId) return
+            const ta = textareaRefs.current[activeRowId]
+            if (!ta) return
+            const start = ta.selectionStart ?? ta.value.length
+            const end = ta.selectionEnd ?? ta.value.length
+            const newVal = ta.value.slice(0, start) + char + ta.value.slice(end)
+            updateRow(activeRowId, newVal)
+            setTimeout(() => {
+              ta.focus()
+              ta.setSelectionRange(start + char.length, start + char.length)
+            }, 0)
+          }}
+          onBackspace={() => {
+            if (!activeRowId) return
+            const ta = textareaRefs.current[activeRowId]
+            if (!ta) return
+            const start = ta.selectionStart ?? ta.value.length
+            if (start === 0) return
+            const newVal = ta.value.slice(0, start - 1) + ta.value.slice(start)
+            updateRow(activeRowId, newVal)
+            setTimeout(() => {
+              ta.focus()
+              ta.setSelectionRange(start - 1, start - 1)
+            }, 0)
+          }}
+          onClose={() => setShowKeyboard(false)}
+        />
+      )}
     </div>
   )
 }

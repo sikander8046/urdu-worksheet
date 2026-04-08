@@ -9,6 +9,19 @@ export const metadata: Metadata = {
     title: 'اردو ورک شیٹ Generator',
     description: 'Free Urdu handwriting practice worksheets — Nastaleeq font, print-ready',
     type: 'website',
+    url: 'https://www.urdusheets.com',
+    images: [{
+      url: 'https://www.urdusheets.com/og-image.png',
+      width: 1200,
+      height: 630,
+      alt: 'اردو ورک شیٹ — Free Urdu Handwriting Worksheets',
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'اردو ورک شیٹ Generator',
+    description: 'Free Urdu handwriting worksheets for teachers and parents',
+    images: ['https://www.urdusheets.com/og-image.png'],
   },
 }
 

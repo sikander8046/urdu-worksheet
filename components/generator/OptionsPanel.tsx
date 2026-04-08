@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import clsx from 'clsx'
 import {
   WorksheetOptions, WorksheetStyle, LineStyle, PaperSize, TraceColor,
@@ -10,9 +10,11 @@ import { Slider, Toggle, SelectGroup, SectionLabel, Divider } from '@/components
 interface OptionsPanelProps {
   opts: WorksheetOptions
   onChange: (patch: Partial<WorksheetOptions>) => void
+  onReset: () => void
 }
 
-export function OptionsPanel({ opts, onChange }: OptionsPanelProps) {
+export function OptionsPanel({ opts, onChange, onReset }: OptionsPanelProps) {
+  const [showAdvanced, setShowAdvanced] = useState(false)
   function applyPreset(preset: DifficultyPreset) {
     if (preset === 'custom') {
       onChange({ difficultyPreset: 'custom' })
@@ -29,6 +31,16 @@ export function OptionsPanel({ opts, onChange }: OptionsPanelProps) {
 
   return (
     <div className="flex flex-col gap-3 text-sm">
+
+      {/* Reset button */}
+      <div className="flex justify-end mb-1">
+        <button
+          onClick={onReset}
+          className="text-[10px] text-ink-400 hover:text-red-500 transition-colors flex items-center gap-1"
+        >
+          ↺ ڈیفالٹ ترتیبات
+        </button>
+      </div>
 
       {/* ── Header ── */}
       <SectionLabel>Header / سرخی</SectionLabel>
@@ -100,6 +112,17 @@ export function OptionsPanel({ opts, onChange }: OptionsPanelProps) {
       />
 
       <Divider />
+
+      {/* ── Advanced settings (collapsible) ── */}
+      <button
+        onClick={() => setShowAdvanced(!showAdvanced)}
+        className="w-full flex items-center justify-between py-2 text-xs font-medium text-ink-500 hover:text-ink-700 transition-colors"
+      >
+        <span>اضافی ترتیبات (Advanced settings)</span>
+        <span className="text-ink-400">{showAdvanced ? '▲' : '▼'}</span>
+      </button>
+
+      {showAdvanced && <div className="flex flex-col gap-3">
 
       {/* ── Typography ── */}
       <SectionLabel>Typography / خط</SectionLabel>
@@ -228,6 +251,8 @@ export function OptionsPanel({ opts, onChange }: OptionsPanelProps) {
         ]}
         onChange={ps => onChange({ paperSize: ps })}
       />
+
+      </div>}{/* end showAdvanced */}
 
     </div>
   )

@@ -68,7 +68,7 @@ export default function WorksheetsPage() {
                       {page.titleEn} →
                     </p>
                     <p className="text-[10px] text-ink-400 mt-1">
-                      {page.lines.length} lines · Free PDF
+                      {page.lines.length} {page.lines.length === 1 ? 'line' : 'lines'} · Free PDF
                     </p>
                   </Link>
                 ))}

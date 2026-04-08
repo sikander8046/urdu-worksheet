@@ -3,7 +3,7 @@ import React from 'react'
 import Link from 'next/link'
 import { WorksheetPageData } from '@/lib/worksheet-pages'
 import { DEFAULT_OPTIONS, WorksheetOptions } from '@/lib/types'
-import { makeRowId } from '@/lib/url-state'
+import { makeRowId, encodeOptions } from '@/lib/url-state'
 import { GeneratorPage } from '@/components/generator/GeneratorPage'
 
 interface Props {
@@ -62,8 +62,24 @@ export function WorksheetLandingPage({ data }: Props) {
         </div>
       </div>
 
-      {/* Generator pre-loaded with this worksheet's content */}
-      <GeneratorPage initialOpts={initialOpts} />
+      {/* Generator — desktop only */}
+      <div className="hidden md:block">
+        <GeneratorPage initialOpts={initialOpts} />
+      </div>
+
+      {/* Mobile — simplified open button */}
+      <div className="md:hidden no-print px-4 pb-6">
+        <a
+          href={`/?${encodeOptions(initialOpts)}`}
+          className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-brand-600 text-white font-medium text-base shadow-sm"
+        >
+          <span>اس ورک شیٹ کو کھولیں</span>
+          <span>←</span>
+        </a>
+        <p className="text-center text-xs text-ink-400 mt-2">
+          Generator میں کھل جائے گا — فوری PDF ڈاؤنلوڈ کریں
+        </p>
+      </div>
     </div>
   )
 }

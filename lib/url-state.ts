@@ -25,6 +25,10 @@ export function encodeOptions(opts: WorksheetOptions): string {
   if (opts.fontStyle         !== DEFAULT_OPTIONS.fontStyle)         params.set('ff', opts.fontStyle)
   if (opts.rulingStyle       !== DEFAULT_OPTIONS.rulingStyle)       params.set('rl', opts.rulingStyle)
   if (opts.textFit           !== DEFAULT_OPTIONS.textFit)           params.set('tf', opts.textFit)
+  if (opts.headerStudentName !== DEFAULT_OPTIONS.headerStudentName) params.set('hsn', opts.headerStudentName ? '1' : '0')
+  if (opts.headerClass       !== DEFAULT_OPTIONS.headerClass)       params.set('hc', opts.headerClass ? '1' : '0')
+  if (opts.headerDate        !== DEFAULT_OPTIONS.headerDate)        params.set('hd', opts.headerDate ? '1' : '0')
+  if (opts.rowsPerPage       !== DEFAULT_OPTIONS.rowsPerPage)       params.set('rpp', String(opts.rowsPerPage))
 
   return params.toString()
 }
@@ -85,6 +89,15 @@ export function decodeOptions(search: string): WorksheetOptions {
 
   const tf = params.get('tf')
   if (tf) opts.textFit = tf as TextFit
+
+  const hsn = params.get('hsn')
+  if (hsn !== null) opts.headerStudentName = hsn === '1'
+  const hc = params.get('hc')
+  if (hc !== null) opts.headerClass = hc === '1'
+  const hd = params.get('hd')
+  if (hd !== null) opts.headerDate = hd === '1'
+  const rpp = params.get('rpp')
+  if (rpp) opts.rowsPerPage = rpp === 'auto' ? 'auto' : Number(rpp)
 
   return opts
 }
