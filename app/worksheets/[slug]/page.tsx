@@ -4,17 +4,16 @@ import { WORKSHEET_PAGES } from '@/lib/worksheet-pages'
 import { WorksheetLandingPage } from '@/components/pages/WorksheetLandingPage'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateStaticParams() {
   return WORKSHEET_PAGES.map(p => ({ slug: p.slug }))
 }
 
-export async function generateMetadata(
-  { params }: Props
-): Promise<Metadata> {
-  const page = WORKSHEET_PAGES.find(p => p.slug === params.slug)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const page = WORKSHEET_PAGES.find(p => p.slug === slug)
   if (!page) return {}
   return {
     title: `${page.titleUrdu} | اردو ورک شیٹ`,
@@ -23,8 +22,9 @@ export async function generateMetadata(
   }
 }
 
-export default function WorksheetPage({ params }: Props) {
-  const page = WORKSHEET_PAGES.find(p => p.slug === params.slug)
+export default async function WorksheetPage({ params }: Props) {
+  const { slug } = await params
+  const page = WORKSHEET_PAGES.find(p => p.slug === slug)
   if (!page) notFound()
   return <WorksheetLandingPage data={page} />
 }
