@@ -1,16 +1,21 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { WorksheetPageData } from '@/lib/worksheet-pages'
 import { DEFAULT_OPTIONS, WorksheetOptions } from '@/lib/types'
 import { makeRowId, encodeOptions } from '@/lib/url-state'
 import { GeneratorPage } from '@/components/generator/GeneratorPage'
+import { Analytics } from '@/lib/analytics'
 
 interface Props {
   data: WorksheetPageData
 }
 
 export function WorksheetLandingPage({ data }: Props) {
+  useEffect(() => {
+    Analytics.worksheetPageViewed(data.slug, data.titleEn)
+  }, [data.slug, data.titleEn])
+
   const initialOpts: WorksheetOptions = {
     ...DEFAULT_OPTIONS,
     ...data.defaultOpts,

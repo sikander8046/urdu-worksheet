@@ -5,6 +5,7 @@ import clsx from 'clsx'
 import { LIBRARY_ITEMS, LIBRARY_CATEGORIES, LibraryItem } from '@/lib/library'
 import { WorksheetRow, DIFFICULTY_PRESETS, DifficultyPreset } from '@/lib/types'
 import { makeRowId } from '@/lib/url-state'
+import { Analytics } from '@/lib/analytics'
 
 interface LibraryPanelProps {
   onLoad: (rows: WorksheetRow[], preset?: DifficultyPreset) => void
@@ -26,6 +27,7 @@ export function LibraryPanel({ onLoad, onClose }: LibraryPanelProps) {
   })
 
   function loadItem(item: LibraryItem) {
+    Analytics.libraryItemLoaded(item.id, item.category)
     const rows: WorksheetRow[] = item.lines.map(text => ({ id: makeRowId(), text }))
     onLoad(rows, item.recommendedPreset as DifficultyPreset)
     onClose()

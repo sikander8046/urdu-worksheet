@@ -16,6 +16,7 @@ import { OptionsPanel } from './OptionsPanel'
 import { WorksheetPreview } from './WorksheetPreview'
 import { LibraryPanel } from '@/components/library/LibraryPanel'
 import { Button } from '@/components/shared/Controls'
+import { Analytics } from '@/lib/analytics'
 
 type PanelTab = 'text' | 'style' | 'library'
 
@@ -109,6 +110,9 @@ export function GeneratorPage({ initialOpts }: GeneratorPageProps = {}) {
   }, [opts.paperSize])
 
   const patchOpts = useCallback((patch: Partial<WorksheetOptions>) => {
+    if (patch.fontStyle) Analytics.fontChanged(patch.fontStyle)
+    if (patch.difficultyPreset && patch.difficultyPreset !== 'custom') Analytics.presetSelected(patch.difficultyPreset)
+    if (patch.worksheetStyle) Analytics.styleChanged(patch.worksheetStyle)
     setOpts(prev => ({ ...prev, ...patch }))
   }, [])
 
@@ -135,6 +139,7 @@ export function GeneratorPage({ initialOpts }: GeneratorPageProps = {}) {
     // Safari fallback — html2canvas doesn't work reliably on Safari
     if (isSafari()) {
       setSafariWarning(true)
+      Analytics.safariWarningShown()
       return
     }
 
@@ -180,10 +185,19 @@ export function GeneratorPage({ initialOpts }: GeneratorPageProps = {}) {
 
       const filename = copies > 1 ? `urdu-worksheet-${copies}copies.pdf` : 'urdu-worksheet.pdf'
       pdf.save(filename)
+      Analytics.downloadPDF({
+        paperSize: opts.paperSize,
+        fontStyle: opts.fontStyle,
+        worksheetStyle: opts.worksheetStyle,
+        rowCount: opts.rows.length,
+        pageCount,
+        rulingStyle: opts.rulingStyle,
+      })
       setDownloadSuccess(true)
       setTimeout(() => setDownloadSuccess(false), 3000)
     } catch (err) {
       console.error('PDF generation failed:', err)
+      Analytics.downloadFailed(String(err))
       window.print()
     } finally {
       if (scaleWrapper) scaleWrapper.style.transform = originalTransform
@@ -214,12 +228,14 @@ export function GeneratorPage({ initialOpts }: GeneratorPageProps = {}) {
       await navigator.share({ title: 'Urdu Worksheet', url })
     } else {
       await navigator.clipboard.writeText(url)
+      Analytics.urlCopied()
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
   }
 
   function handleWhatsApp() {
+    Analytics.whatsappShare()
     const url = encodeURIComponent(window.location.href)
     const text = encodeURIComponent('اردو لکھائی ورک شیٹ — یہاں سے پرنٹ کریں: ')
     window.open(`https://wa.me/?text=${text}${url}`, '_blank')

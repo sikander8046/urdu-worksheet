@@ -5,6 +5,7 @@ import clsx from 'clsx'
 import { WorksheetRow } from '@/lib/types'
 import { makeRowId } from '@/lib/url-state'
 import { UrduKeyboard } from './UrduKeyboard'
+import { Analytics } from '@/lib/analytics'
 
 interface TextRowsInputProps {
   rows: WorksheetRow[]
@@ -113,7 +114,10 @@ export function TextRowsInput({ rows, onChange, onClearAll, onUndo, hasUndo, wor
             </button>
           )}
           <button
-            onClick={() => setShowKeyboard(!showKeyboard)}
+            onClick={() => {
+            if (!showKeyboard) Analytics.keyboardOpened()
+            setShowKeyboard(!showKeyboard)
+          }}
             className={clsx(
               'text-[10px] px-2 py-0.5 rounded border transition-colors',
               showKeyboard
